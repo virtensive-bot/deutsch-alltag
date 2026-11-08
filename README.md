@@ -24,9 +24,11 @@ Open http://localhost:5173. To use the AI features, add an Anthropic API key in 
 
 ## Put it on your iPhone
 
-1. `npm run build`. The `dist/` folder is a static site.
-2. Host it anywhere static and HTTPS (Cloudflare Pages, Netlify, GitHub Pages).
-3. Open the URL in Safari, then Share → **Add to Home Screen**.
+Live at **https://virtensive-bot.github.io/deutsch-alltag/** (GitHub Pages, `gh-pages` branch).
+
+1. After changes, run `npm run deploy`. It builds and force-pushes `dist/` to `gh-pages`. Wait about a minute.
+2. Open the URL in Safari, then Share → **Add to Home Screen**.
+3. The installed app updates itself on the next launch after a deploy.
 4. Enter your API key once in Settings on the phone.
 
 Progress is stored per device. Use Settings → Export / Import to move it.
