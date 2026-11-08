@@ -102,8 +102,17 @@ export default function SettingsPage() {
 
       <section className="card">
         <h2>Voice & study</h2>
+        <div className="field">
+          Lesson audio
+          <div className="btn-row">
+            <button type="button" className="small" onClick={() => speak('Hallo! Ich hätte gern zwei Brötchen, bitte.')}>
+              🔊 Test sound
+            </button>
+          </div>
+          <p className="muted-text small-text">All lesson and phrase audio is recorded, so it plays like any other sound on your phone.</p>
+        </div>
         <label className="field">
-          German voice
+          Phone voice (AI replies and number drills)
           <div className="answer-input">
             <select value={settings.voiceURI} onChange={(e) => updateSettings({ voiceURI: e.target.value })}>
               <option value="">Automatic (best available)</option>
@@ -113,14 +122,14 @@ export default function SettingsPage() {
                 </option>
               ))}
             </select>
-            <button type="button" className="small" onClick={() => speak('Hallo! Ich hätte gern zwei Brötchen, bitte.')}>
+            <button type="button" className="small" onClick={() => speak('Ich habe dich gut verstanden. Das macht dann vier Euro zwanzig.')}>
               Test
             </button>
           </div>
         </label>
         {voices.length === 0 && <p className="error">No German voice found on this device.</p>}
         <p className="muted-text small-text">
-          <b>No sound on iPhone?</b> Speech is muted when the phone is on silent: flip the ring/silent switch (or Action button) to
+          <b>Phone voice silent on iPhone?</b> It is muted when the phone is on silent: flip the ring/silent switch (or Action button) to
           ring and turn the volume up. If it still stays quiet, pick a voice above that isn’t “Enhanced/Premium” (those need to be
           downloaded first), or leave it on Automatic.
         </p>
