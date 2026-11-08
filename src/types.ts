@@ -102,6 +102,15 @@ export interface SmalltalkState {
   drillBest: number;
 }
 
+export interface PathState {
+  /** Finished lessons/tests: step id → result */
+  done: Record<string, { at: number; acc: number }>;
+  /** XP per day (YYYY-MM-DD) */
+  xp: Record<string, number>;
+  /** false = "can't listen now": listening exercises are replaced with reading ones */
+  listening: boolean;
+}
+
 export interface AppState {
   version: 1;
   settings: Settings;
@@ -111,4 +120,7 @@ export interface AppState {
   stats: Record<string, DayStats>; // key: YYYY-MM-DD
   numbersBest: Record<string, number>;
   smalltalk: SmalltalkState;
+  path: PathState;
+  /** Data migrations applied */
+  migrated?: number;
 }

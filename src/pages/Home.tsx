@@ -1,71 +1,32 @@
 import { SCENARIOS, phrasesForScenario } from '../content';
-import { dueQueue, streak, todayKey, useAppState } from '../lib/store';
-import { navigate } from '../components/common';
+import { useAppState } from '../lib/store';
 import { SMALLTALK_TOPICS } from '../content/smalltalk';
 
-export default function Home() {
+export default function Practice() {
   const state = useAppState();
-  const queue = dueQueue();
-  const dueReviews = queue.filter((c) => c.state !== 'new').length;
-  const newToday = queue.length - dueReviews;
-  const today = state.stats[todayKey()];
   const cards = Object.values(state.cards);
-  const mature = cards.filter((c) => c.state === 'review' && c.stability >= 7).length;
-  const s = streak();
   const scriptReady = Object.keys(state.smalltalk.script).length;
-
-  const nextScenario = SCENARIOS.find((sc) => !state.startedScenarios.includes(sc.id));
 
   return (
     <div className="page">
-      <header className="hero">
-        <div>
-          <div className="eyebrow">Deutsch im Alltag</div>
-          <h1>Hallo! 👋</h1>
-        </div>
-        <div className="stats-row">
-          <div className="stat">
-            <b>{s}</b>
-            <span>day streak</span>
-          </div>
-          <div className="stat">
-            <b>{today?.reviews ?? 0}</b>
-            <span>reviews today</span>
-          </div>
-          <div className="stat">
-            <b>{mature}</b>
-            <span>phrases solid</span>
-          </div>
-        </div>
+      <header className="page-head">
+        <h1>🎯 Practice</h1>
       </header>
+      <p className="muted-text">Extra practice beyond the path. Start with the situations you’ve reached in your path.</p>
+      <div className="grid">
+        <a className="tile" href="#/numbers">
+          <div className="tile-emoji">🔢</div>
+          <div className="tile-title">Numbers by ear</div>
+          <div className="tile-sub">Prices, times, phone numbers</div>
+        </a>
+        <a className="tile" href="#/capture">
+          <div className="tile-emoji">📝</div>
+          <div className="tile-title">I heard this…</div>
+          <div className="tile-sub">Decode something you heard</div>
+        </a>
+      </div>
 
-      <section className="card today">
-        <h2>Today</h2>
-        {cards.length === 0 ? (
-          <p>Start with the <b>Conversation survival kit</b> below — it adds its phrases to your review deck.</p>
-        ) : queue.length === 0 ? (
-          <p>All caught up. 🎉 Do a role-play or a numbers drill to keep going.</p>
-        ) : (
-          <p>
-            <b>{dueReviews}</b> due · <b>{newToday}</b> new
-          </p>
-        )}
-        <div className="btn-row">
-          {queue.length > 0 && (
-            <button className="primary" onClick={() => navigate('/review')}>
-              Start review
-            </button>
-          )}
-          {nextScenario && (
-            <button onClick={() => navigate(`/scenario/${nextScenario.id}`)}>
-              Next: {nextScenario.emoji} {nextScenario.title}
-            </button>
-          )}
-          <button onClick={() => navigate('/numbers')}>🔢 Numbers drill</button>
-        </div>
-      </section>
-
-      <h2 className="section-title">Phase 1 · Everyday situations</h2>
+      <h2 className="section-title">Situations: all phrases + AI role-play</h2>
       <div className="grid">
         {SCENARIOS.map((sc) => {
           const keys = new Set(phrasesForScenario(sc.id).map((p) => p.key));

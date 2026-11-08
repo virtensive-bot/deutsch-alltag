@@ -2,7 +2,11 @@
 
 A personal German trainer for real-life situations in Germany: shops, trains, restaurants, and then her friends and small talk.
 
-## What's in it (MVP: Phase 1)
+## Learn tab: the step-by-step path
+
+11 units, 33 short lessons and a test per unit, from "Hallo" to small talk with her friends. Each lesson introduces 5–6 phrases two at a time, then practises them with easy tap exercises: pick the meaning, listen and choose, build the sentence from word tiles, match pairs, pick the right reply in a mini-dialogue. Mistakes come back at the end. Finished phrases go into spaced review. See [LEARNING-DESIGN.md](LEARNING-DESIGN.md) for what's borrowed from Duolingo, Babbel, Pimsleur and others. Content is in `src/content/path.ts`; exercise generation is in `src/lib/lesson.ts`.
+
+## Practice tab (more depth)
 
 - **10 everyday situations.** Each has a briefing, phrases you'll say, things you'll hear (listening mode), a grammar spotlight and a voiced dialogue.
 - **Spaced-repetition review** (FSRS-style). "Say it" cards: type or speak the German. "Listen" cards: hear it and understand it.

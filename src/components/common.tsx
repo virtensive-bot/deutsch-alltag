@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { speak, sttAvailable, useDictation } from '../lib/speech';
 import { lookupBuiltin } from '../content';
+import { lookupPathItem } from '../content/path';
 import { getState } from '../lib/store';
 import type { Phrase } from '../types';
 
@@ -86,6 +87,8 @@ export function PhraseRow({ p, hideText }: { p: Phrase; hideText?: boolean }) {
 export function resolvePhrase(key: string): (Phrase & { source: string }) | undefined {
   const b = lookupBuiltin(key);
   if (b) return { ...b.phrase, source: `${b.scenario.emoji} ${b.scenario.title}` };
+  const pi = lookupPathItem(key);
+  if (pi) return { ...pi.phrase, source: `${pi.unit.emoji} ${pi.unit.title}` };
   const c = getState().custom[key];
   if (c) return { de: c.de, en: c.en, note: c.note, source: c.source === 'capture' ? '📝 Captured' : c.source === 'smalltalk' ? '💬 My small talk' : '🎭 From role-play' };
   return undefined;

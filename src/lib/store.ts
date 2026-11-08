@@ -1,5 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import type { AppState, Card, CustomPhrase, DayStats, Settings, SmalltalkEntry } from '../types';
+
+export const DAILY_XP_GOAL = 30;
 import { newCard, schedule, type Grade } from './srs';
 import { phrasesForScenario } from '../content';
 
@@ -13,8 +15,8 @@ const defaultSettings: Settings = {
   explainLang: 'en',
   voiceURI: '',
   rate: 1,
-  newPerDay: 25,
-  roleplayMode: 'realistic',
+  newPerDay: 10,
+  roleplayMode: 'supportive',
   aboutMe: '',
 };
 
@@ -28,6 +30,8 @@ function initial(): AppState {
     stats: {},
     numbersBest: {},
     smalltalk: { notes: {}, script: {}, drillBest: 0 },
+    path: { done: {}, xp: {}, listening: true },
+    migrated: 1,
   };
 }
 
@@ -36,7 +40,20 @@ function load(): AppState {
     const raw = localStorage.getItem(KEY);
     if (!raw) return initial();
     const parsed = JSON.parse(raw) as AppState;
-    return { ...initial(), ...parsed, settings: { ...defaultSettings, ...parsed.settings }, smalltalk: { ...initial().smalltalk, ...parsed.smalltalk } };
+    const merged: AppState = {
+      ...initial(),
+      ...parsed,
+      settings: { ...defaultSettings, ...parsed.settings },
+      smalltalk: { ...initial().smalltalk, ...parsed.smalltalk },
+      path: { ...initial().path, ...parsed.path },
+    };
+    // v1: switch to the gentler step-by-step defaults
+    if ((parsed.migrated ?? 0) < 1) {
+      merged.settings.roleplayMode = 'supportive';
+      merged.settings.newPerDay = Math.min(merged.settings.newPerDay, 10);
+      merged.migrated = 1;
+    }
+    return merged;
   } catch {
     return initial();
   }
@@ -180,6 +197,51 @@ export function recordSmalltalkDrill(score: number) {
   set({ ...state, smalltalk: { ...state.smalltalk, drillBest: Math.max(state.smalltalk.drillBest, score) } });
 }
 
+// ---------------- Learning path ----------------
+
+function schedulePathItems(cards: Record<string, Card>, results: Record<string, boolean>, now: number) {
+  for (const [key, ok] of Object.entries(results)) {
+    if (!key.startsWith('p:')) continue;
+    const id = `${key}|listen`;
+    const existing = cards[id];
+    // First time: correct → straight to review (a few days); wrong → back soon (learning)
+    cards[id] = existing ? schedule(existing, ok ? 3 : 1, now) : schedule({ ...newCard(key, 'listen', now) }, ok ? 4 : 3, now);
+  }
+}
+
+export function completePathStep(stepId: string, results: Record<string, boolean>, xp: number) {
+  const now = Date.now();
+  const vals = Object.values(results);
+  const acc = vals.length ? Math.round((vals.filter(Boolean).length / vals.length) * 100) : 100;
+  const cards = { ...state.cards };
+  schedulePathItems(cards, results, now);
+  const k = todayKey();
+  const prev = state.path.done[stepId];
+  set({
+    ...state,
+    cards,
+    path: {
+      ...state.path,
+      done: { ...state.path.done, [stepId]: { at: now, acc: Math.max(acc, prev?.acc ?? 0) } },
+      xp: { ...state.path.xp, [k]: (state.path.xp[k] ?? 0) + xp },
+    },
+    stats: bumpStats({ reviews: vals.length }),
+  });
+}
+
+export function setListening(listening: boolean) {
+  set({ ...state, path: { ...state.path, listening } });
+}
+
+/** Path phrases due for review now. */
+export function duePathKeys(now = Date.now(), max = 12): string[] {
+  return Object.values(state.cards)
+    .filter((c) => c.phraseKey.startsWith('p:') && c.state !== 'new' && c.due <= now)
+    .sort((a, b) => a.due - b.due)
+    .slice(0, max)
+    .map((c) => c.phraseKey);
+}
+
 export function logRoleplay() {
   set({ ...state, stats: bumpStats({ roleplays: 1 }) });
 }
@@ -232,7 +294,7 @@ export function exportData(): string {
 export function importData(json: string) {
   const parsed = JSON.parse(json) as AppState;
   if (parsed.version !== 1 || typeof parsed.cards !== 'object') throw new Error('Not a valid backup file');
-  set({ ...initial(), ...parsed, settings: { ...defaultSettings, ...parsed.settings, apiKey: state.settings.apiKey }, smalltalk: { ...initial().smalltalk, ...parsed.smalltalk } });
+  set({ ...initial(), ...parsed, settings: { ...defaultSettings, ...parsed.settings, apiKey: state.settings.apiKey }, smalltalk: { ...initial().smalltalk, ...parsed.smalltalk }, path: { ...initial().path, ...parsed.path } });
 }
 
 export function resetProgress() {

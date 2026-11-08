@@ -18,7 +18,7 @@ export default function Roleplay({ id }: { id: string }) {
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [hideText, setHideText] = useState(true);
+  const [hideText, setHideText] = useState(settings.roleplayMode === 'realistic');
   const [revealed, setRevealed] = useState<Set<number>>(new Set());
   const [hintsShown, setHintsShown] = useState<Set<number>>(new Set());
   const [debrief, setDebrief] = useState<Debrief | null>(null);
