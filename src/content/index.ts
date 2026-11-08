@@ -1,6 +1,7 @@
 import type { Phrase, Scenario } from '../types';
 import { scenariosA } from './scenarios-a';
 import { scenariosB } from './scenarios-b';
+import { SMALLTALK_SCENARIO } from './smalltalk';
 
 export const SCENARIOS: Scenario[] = [...scenariosA, ...scenariosB];
 
@@ -39,5 +40,5 @@ export function phrasesForScenario(scenarioId: string): IndexedPhrase[] {
 }
 
 export function scenarioById(id: string) {
-  return SCENARIOS.find((s) => s.id === id);
+  return SCENARIOS.find((s) => s.id === id) ?? (id === SMALLTALK_SCENARIO.id ? SMALLTALK_SCENARIO : undefined);
 }

@@ -1,5 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { Scenario, Settings } from '../types';
+import type { Phrase, Scenario, Settings, SmalltalkEntry } from '../types';
+import { getState } from './store';
+import { SMALLTALK_TOPICS, type SmalltalkTopic } from '../content/smalltalk';
 
 export interface Turn {
   role: 'user' | 'assistant';
@@ -112,13 +114,14 @@ const replySchema = {
 
 export function roleplaySystem(s: Scenario, settings: Settings) {
   const realistic = settings.roleplayMode === 'realistic';
-  return `You are running a German speaking-practice role-play for an adult learner (native Estonian, fluent English, roughly A1→A2, wants to be challenged and learn fast). They regularly visit their girlfriend in Germany.
+  return `You are running a German speaking-practice role-play for an adult learner (native Estonian, fluent English, roughly A1→A2, wants to be challenged and learn fast). They regularly visit their girlfriend, who is also Estonian and lives in Germany; the people they talk to in German are her (mostly German) friends, colleagues and people in daily life.
 
 SCENE: ${s.roleplay.setting}
 YOUR CHARACTER: ${s.roleplay.character}
 LEARNER'S GOALS: ${s.roleplay.goals.map((g) => `\n- ${g}`).join('')}
 POSSIBLE COMPLICATIONS (use 1–2 naturally, not all): ${s.roleplay.curveballs.map((g) => `\n- ${g}`).join('')}
 ${settings.aboutMe ? `\nABOUT THE LEARNER (use for personal questions): ${settings.aboutMe}` : ''}
+${s.id === 'smalltalk' ? smalltalkContext() : ''}
 
 STYLE:
 ${
@@ -197,6 +200,77 @@ export async function roleplayDebrief(scenario: Scenario, settings: Settings, hi
     schema: debriefSchema,
     effort: 'medium',
   });
+}
+
+// ---------------- Small talk ----------------
+
+function smalltalkContext() {
+  const { script, notes } = getState().smalltalk;
+  const lines = SMALLTALK_TOPICS.map((t) => {
+    const e = script[t.id];
+    if (e) return `- ${t.title}: ${e.medium.de}`;
+    if (notes[t.id]?.trim()) return `- ${t.title} (notes): ${notes[t.id].trim()}`;
+    return null;
+  }).filter(Boolean);
+  return `
+RAPID-FIRE SMALL TALK: This is a getting-to-know-you drill. Ask ONE question per turn, mostly from these topics: ${SMALLTALK_TOPICS.map((t) => t.title).join(', ')}. Vary how you phrase them (colloquial variants). After an answer, react briefly like a real person (Echt? Krass. Ach, cool.) and then either dig deeper with a follow-up about a detail the learner mentioned (this is where they must improvise) or switch topic. Share small bits about yourself too, so the learner can ask back. Keep going for 12+ exchanges; don't end it yourself unless the learner says goodbye.
+${lines.length ? `THE LEARNER'S PREPARED ANSWERS (use them to ask relevant follow-ups the learner has NOT prepared):\n${lines.join('\n')}` : ''}`;
+}
+
+const phraseSchema = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['de', 'en'],
+  properties: { de: { type: 'string' }, en: { type: 'string' } },
+} as const;
+
+const smalltalkSchema = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['short', 'medium', 'story', 'bounce', 'words', 'grammar'],
+  properties: {
+    short: { ...phraseSchema, description: 'One-sentence answer (quick reply at a party).' },
+    medium: { ...phraseSchema, description: 'Three-sentence answer with one interesting detail.' },
+    story: { ...phraseSchema, description: '~30-second spoken version (5–7 sentences), Perfekt for past events, a little humour or personality.' },
+    bounce: { ...phraseSchema, description: 'A natural question to ask back on the same topic (du-form).' },
+    words: {
+      type: 'array',
+      description: '4–6 key words/chunks from the answers that the learner needs, with article and plural for nouns.',
+      items: { ...phraseSchema },
+    },
+    grammar: { type: 'string', description: 'One short note on the most useful grammar point in these answers.' },
+  },
+} as const;
+
+export async function generateSmalltalk(settings: Settings, topic: SmalltalkTopic, notes: string): Promise<SmalltalkEntry> {
+  const others = Object.entries(getState().smalltalk.notes)
+    .filter(([id, n]) => id !== topic.id && n.trim())
+    .map(([id, n]) => `${id}: ${n.trim()}`)
+    .join('\n');
+  const r = await structured<Omit<SmalltalkEntry, 'generated'>>(settings, {
+    system: `You write a personal small-talk script in German for an adult learner (native Estonian, fluent English, A1→A2, wants to be challenged and progress fast). Their girlfriend is also Estonian and lives in Germany; they talk German with her German friends at parties, dinners, bars.
+
+Rules:
+- Spoken, natural German as a real person would say it among friends (du-form, common spoken chunks like "eigentlich", "halt", "ziemlich", "ehrlich gesagt"), but grammatically correct — they will memorise it.
+- Pitch it slightly above their level: A2+/B1 structures (Perfekt, weil/dass with verb at the end, seit + present) but short sentences they can actually say out loud.
+- Use ONLY facts from their notes and profile; never invent facts about their life. If a detail is missing, keep that part generic or use "…" as a slot.
+- English translations are natural, not literal.
+- The grammar note is written in ${langName(settings)}.`,
+    messages: [
+      {
+        role: 'user',
+        content: `Topic: ${topic.title}
+Questions people ask: ${topic.questions.map((q: Phrase) => q.de).join(' | ')}
+My notes (any language): ${notes.trim() || '(none — keep it generic with slots)'}
+${settings.aboutMe ? `About me: ${settings.aboutMe}` : ''}
+${others ? `My notes on other topics (for consistency, don't repeat them):\n${others}` : ''}`,
+      },
+    ],
+    schema: smalltalkSchema,
+    effort: 'medium',
+    maxTokens: 6000,
+  });
+  return { ...r, generated: Date.now() };
 }
 
 // ---------------- Capture ("I heard this") ----------------

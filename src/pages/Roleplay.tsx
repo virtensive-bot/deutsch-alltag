@@ -97,7 +97,7 @@ export default function Roleplay({ id }: { id: string }) {
   return (
     <Page
       title={`🎭 ${scenario.title}`}
-      back={`/scenario/${scenario.id}`}
+      back={scenario.id === 'smalltalk' ? '/smalltalk' : `/scenario/${scenario.id}`}
       actions={
         <select
           className="mode-select"
@@ -252,7 +252,7 @@ export default function Roleplay({ id }: { id: string }) {
               >
                 Play again
               </button>
-              <button onClick={() => navigate(`/scenario/${scenario.id}`)}>Back to situation</button>
+              <button onClick={() => navigate(scenario.id === 'smalltalk' ? '/smalltalk' : `/scenario/${scenario.id}`)}>Back</button>
             </div>
           </div>
         )}

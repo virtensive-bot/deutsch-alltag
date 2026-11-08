@@ -95,7 +95,7 @@ export default function SettingsPage() {
             rows={4}
             value={settings.aboutMe}
             onChange={(e) => updateSettings({ aboutMe: e.target.value })}
-            placeholder="e.g. Mart, from Tallinn. Work in health-tech. Girlfriend Lisa lives in Munich; I visit monthly. Like running and sailing."
+            placeholder="e.g. Mart, from Tallinn. Work in health-tech. Girlfriend Liis (also Estonian) lives in Munich; I visit monthly. Like running and sailing."
           />
         </label>
       </section>

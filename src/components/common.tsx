@@ -87,7 +87,7 @@ export function resolvePhrase(key: string): (Phrase & { source: string }) | unde
   const b = lookupBuiltin(key);
   if (b) return { ...b.phrase, source: `${b.scenario.emoji} ${b.scenario.title}` };
   const c = getState().custom[key];
-  if (c) return { de: c.de, en: c.en, note: c.note, source: c.source === 'capture' ? '📝 Captured' : '🎭 From role-play' };
+  if (c) return { de: c.de, en: c.en, note: c.note, source: c.source === 'capture' ? '📝 Captured' : c.source === 'smalltalk' ? '💬 My small talk' : '🎭 From role-play' };
   return undefined;
 }
 

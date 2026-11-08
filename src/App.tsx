@@ -6,6 +6,7 @@ import Numbers from './pages/Numbers';
 import Roleplay from './pages/Roleplay';
 import Capture from './pages/Capture';
 import SettingsPage from './pages/Settings';
+import SmallTalk from './pages/SmallTalk';
 import { useAppState, dueQueue } from './lib/store';
 
 const TABS = [
@@ -38,6 +39,9 @@ export default function App() {
     case 'capture':
       content = <Capture />;
       break;
+    case 'smalltalk':
+      content = <SmallTalk sub={arg} />;
+      break;
     case 'settings':
       content = <SettingsPage />;
       break;
@@ -54,7 +58,7 @@ export default function App() {
       {!hideNav && (
         <nav className="tabbar">
           {TABS.map((t) => (
-            <a key={t.path} href={`#/${t.path}`} className={page === t.path || (t.path === 'home' && !TABS.some((x) => x.path === page) && page !== 'scenario') ? 'active' : ''}>
+            <a key={t.path} href={`#/${t.path}`} className={page === t.path || (t.path === 'home' && !TABS.some((x) => x.path === page) && page !== 'scenario' && page !== 'smalltalk') ? 'active' : ''}>
               <span className="tab-icon">
                 {t.icon}
                 {t.path === 'review' && due > 0 && <span className="badge">{due > 99 ? '99+' : due}</span>}

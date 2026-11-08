@@ -11,6 +11,12 @@ A personal German trainer for real-life situations in Germany: shops, trains, re
 - **"I heard this…" capture.** Decodes half-remembered German you heard and adds it to your deck.
 - **PWA.** Install it to the iPhone home screen. Core study works offline; the AI features need a connection.
 
+## Phase 2 (in progress)
+
+- **My small talk** (`#/smalltalk`) covers 13 topics people always ask about (where you're from, how you met, moving to Germany?, Estonia, your work…). For each you get the real German question variants, your notes (English or Estonian) turned by Claude into your own answers (one line / three lines / 30-second story), a question to ask back, and key words. Add them to the review deck.
+- **Small-talk drill.** You hear a question, answer out loud and fast (timed), and compare with your script.
+- **Rapid-fire with Jonas.** An AI party guest who knows your script and digs into follow-ups you haven't prepared.
+
 ## Run locally
 
 ```bash
@@ -44,6 +50,6 @@ Progress is stored per device. Use Settings → Export / Import to move it.
 
 ## Roadmap
 
-- **Phase 2:** a personal small-talk script, spoken German (contractions, modal particles), multi-speaker "evening with friends" listening, regional dialect pack, partner mode (girlfriend records phrases).
+- **Phase 2 next:** spoken German (contractions, modal particles), multi-speaker "evening with friends" listening, regional dialect pack, partner mode (girlfriend records phrases).
 - **Trip mode:** a pre-visit rehearsal plan and daily missions during visits.
 - Higher-quality pre-generated audio for core phrases.

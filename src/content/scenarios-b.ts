@@ -253,7 +253,7 @@ export const scenariosB: Scenario[] = [
       { de: 'Wollen wir noch was trinken?', en: 'Shall we have another drink?' },
     ],
     hear: [
-      { de: 'Und du bist der Freund von Lisa, oder?', en: 'And you’re Lisa’s boyfriend, right?', note: '"oder?" at the end = "right?" — super common.' },
+      { de: 'Und du bist der Freund von Liis, oder?', en: 'And you’re Liis’s boyfriend, right?', note: '"oder?" at the end = "right?" — super common.' },
       { de: 'Wo kommst du ursprünglich her?', en: 'Where are you originally from?' },
       { de: 'Wie lange bleibst du diesmal?', en: 'How long are you staying this time?' },
       { de: 'Und, wie gefällt’s dir in Deutschland?', en: 'So, how do you like Germany?' },
@@ -264,6 +264,8 @@ export const scenariosB: Scenario[] = [
       { de: 'Ist Estland nicht total digital? Habt ihr nicht so ’ne E-Residency?', en: 'Isn’t Estonia totally digital? Don’t you have some e-residency thing?' },
       { de: 'Hast du Lust, nächste Woche mitzukommen?', en: 'Do you fancy coming along next week?' },
       { de: 'Wir können auch Englisch reden, wenn’s einfacher ist.', en: 'We can speak English too if it’s easier.' },
+      { de: 'Sprecht ihr zwei eigentlich Estnisch miteinander?', en: 'Do you two actually speak Estonian with each other?' },
+      { de: 'Wie lange wohnt Liis schon in Deutschland?', en: 'How long has Liis been living in Germany?' },
     ],
     grammar: {
       title: 'Talking about duration: seit + present tense',
@@ -281,7 +283,7 @@ export const scenariosB: Scenario[] = [
     dialogue: [
       { who: 'them', de: 'Hi! Du bist bestimmt Mart, oder? Ich bin Jonas.', en: 'Hi! You must be Mart, right? I’m Jonas.' },
       { who: 'you', de: 'Genau! Hi Jonas, freut mich.', en: 'Exactly! Hi Jonas, nice to meet you.' },
-      { who: 'them', de: 'Lisa hat schon viel von dir erzählt. Du kommst aus Estland, ne?', en: 'Lisa has told me a lot about you. You’re from Estonia, right?' },
+      { who: 'them', de: 'Liis hat schon viel von dir erzählt. Du kommst aus Estland, ne?', en: 'Liis has told me a lot about you. You’re from Estonia, right?' },
       { who: 'you', de: 'Ja, aus Tallinn. Ich bin ungefähr einmal im Monat hier.', en: 'Yes, from Tallinn. I’m here about once a month.' },
       { who: 'them', de: 'Cool. Und wie gefällt’s dir hier?', en: 'Cool. And how do you like it here?' },
       { who: 'you', de: 'Sehr gut! Nur das Deutsch ist noch schwierig. Und woher kennt ihr euch?', en: 'Very much! Only the German is still difficult. And how do you know each other?' },
@@ -306,13 +308,13 @@ export const scenariosB: Scenario[] = [
   {
     id: 'guest',
     emoji: '🏡',
-    title: 'Guest at her family & friends',
+    title: 'Guest at German friends’ place',
     titleDe: 'Zu Gast',
     level: 'A2',
     intro: [
       'Being a good guest in German: arrive on time (really), bring something small (flowers, wine, chocolates), offer to help, and compliment the food.',
       'Before eating: "Guten Appetit!" (or casually "Mahlzeit!" at lunch). When toasting: look people in the eye and say "Prost!" or "Zum Wohl!".',
-      'With her parents, start with "Sie" unless they offer "du" — "Wir können uns gern duzen" means switch to du.',
+      'With older people (a friend’s parents, neighbours), start with "Sie" unless they offer "du" — "Wir können uns gern duzen" means switch to du.',
       'Kaffee und Kuchen on Sunday afternoons is a real tradition — expect to be offered cake.',
     ],
     say: [
@@ -366,8 +368,8 @@ export const scenariosB: Scenario[] = [
       { who: 'you', de: 'Mmh, das schmeckt wirklich lecker! Was ist da drin?', en: 'Mmm, this is really delicious! What’s in it?' },
     ],
     roleplay: {
-      character: 'Petra, the learner’s girlfriend’s mother, warm and curious, a bit talkative, hosting Sunday Kaffee und Kuchen.',
-      setting: 'Sunday afternoon at the girlfriend’s parents’ home. Coffee and cake.',
+      character: 'Petra, the mother of Anna (a close German friend of the learner’s Estonian girlfriend), warm and curious, a bit talkative, hosting Sunday Kaffee und Kuchen.',
+      setting: 'Sunday afternoon at Anna’s parents’ home; the learner and their girlfriend are invited. Coffee and cake.',
       goals: [
         'Greet and thank the host, give a small gift',
         'Talk about your trip using the Perfekt',

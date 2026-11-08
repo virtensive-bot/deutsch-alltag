@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import type { AppState, Card, CustomPhrase, DayStats, Settings } from '../types';
+import type { AppState, Card, CustomPhrase, DayStats, Settings, SmalltalkEntry } from '../types';
 import { newCard, schedule, type Grade } from './srs';
 import { phrasesForScenario } from '../content';
 
@@ -27,6 +27,7 @@ function initial(): AppState {
     startedScenarios: [],
     stats: {},
     numbersBest: {},
+    smalltalk: { notes: {}, script: {}, drillBest: 0 },
   };
 }
 
@@ -35,7 +36,7 @@ function load(): AppState {
     const raw = localStorage.getItem(KEY);
     if (!raw) return initial();
     const parsed = JSON.parse(raw) as AppState;
-    return { ...initial(), ...parsed, settings: { ...defaultSettings, ...parsed.settings } };
+    return { ...initial(), ...parsed, settings: { ...defaultSettings, ...parsed.settings }, smalltalk: { ...initial().smalltalk, ...parsed.smalltalk } };
   } catch {
     return initial();
   }
@@ -146,6 +147,39 @@ export function gradeCard(cardId: string, g: Grade) {
   });
 }
 
+// ---------------- Small talk ----------------
+
+export function setSmalltalkNote(topicId: string, text: string) {
+  set({ ...state, smalltalk: { ...state.smalltalk, notes: { ...state.smalltalk.notes, [topicId]: text } } });
+}
+
+/** Save a generated script entry. Replaces (and removes from the deck) cards from a previous version. */
+export function setSmalltalkEntry(topicId: string, entry: SmalltalkEntry) {
+  const old = state.smalltalk.script[topicId];
+  if (old?.deckKeys?.length) old.deckKeys.forEach(deleteCustomPhrase);
+  set({ ...state, smalltalk: { ...state.smalltalk, script: { ...state.smalltalk.script, [topicId]: entry } } });
+}
+
+/** Add a topic's answers + questions to the deck. */
+export function addSmalltalkToDeck(topicId: string, questions: { de: string; en: string; note?: string }[]) {
+  const entry = state.smalltalk.script[topicId];
+  if (!entry || entry.deckKeys?.length) return;
+  const keys: string[] = [];
+  const add = (p: { de: string; en: string; note?: string }, kinds: Card['kind'][]) =>
+    keys.push(addCustomPhrase({ de: p.de, en: p.en, note: p.note, source: 'smalltalk', scenarioId: topicId }, kinds));
+  add(entry.short, ['produce', 'listen']);
+  add(entry.medium, ['produce']);
+  add(entry.bounce, ['produce']);
+  questions.forEach((q) => add(q, ['listen']));
+  entry.words.slice(0, 4).forEach((w) => add(w, ['produce']));
+  const cur = state.smalltalk.script[topicId];
+  set({ ...state, smalltalk: { ...state.smalltalk, script: { ...state.smalltalk.script, [topicId]: { ...cur, deckKeys: keys } } } });
+}
+
+export function recordSmalltalkDrill(score: number) {
+  set({ ...state, smalltalk: { ...state.smalltalk, drillBest: Math.max(state.smalltalk.drillBest, score) } });
+}
+
 export function logRoleplay() {
   set({ ...state, stats: bumpStats({ roleplays: 1 }) });
 }
@@ -198,7 +232,7 @@ export function exportData(): string {
 export function importData(json: string) {
   const parsed = JSON.parse(json) as AppState;
   if (parsed.version !== 1 || typeof parsed.cards !== 'object') throw new Error('Not a valid backup file');
-  set({ ...initial(), ...parsed, settings: { ...defaultSettings, ...parsed.settings, apiKey: state.settings.apiKey } });
+  set({ ...initial(), ...parsed, settings: { ...defaultSettings, ...parsed.settings, apiKey: state.settings.apiKey }, smalltalk: { ...initial().smalltalk, ...parsed.smalltalk } });
 }
 
 export function resetProgress() {

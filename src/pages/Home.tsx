@@ -1,6 +1,7 @@
 import { SCENARIOS, phrasesForScenario } from '../content';
 import { dueQueue, streak, todayKey, useAppState } from '../lib/store';
 import { navigate } from '../components/common';
+import { SMALLTALK_TOPICS } from '../content/smalltalk';
 
 export default function Home() {
   const state = useAppState();
@@ -11,6 +12,7 @@ export default function Home() {
   const cards = Object.values(state.cards);
   const mature = cards.filter((c) => c.state === 'review' && c.stability >= 7).length;
   const s = streak();
+  const scriptReady = Object.keys(state.smalltalk.script).length;
 
   const nextScenario = SCENARIOS.find((sc) => !state.startedScenarios.includes(sc.id));
 
@@ -88,11 +90,28 @@ export default function Home() {
       </div>
 
       <h2 className="section-title">Phase 2 · Friends & small talk</h2>
+      <div className="grid">
+        <a className="tile" href="#/smalltalk">
+          <div className="tile-emoji">💬</div>
+          <div className="tile-title">My small talk</div>
+          <div className="tile-sub">Your own answers to the questions everyone asks</div>
+          <div className="progress">
+            <div style={{ width: `${Math.round((scriptReady / SMALLTALK_TOPICS.length) * 100)}%` }} />
+          </div>
+          <div className="tile-sub">
+            {scriptReady}/{SMALLTALK_TOPICS.length} topics written
+          </div>
+        </a>
+        <a className="tile" href="#/roleplay/smalltalk">
+          <div className="tile-emoji">🍻</div>
+          <div className="tile-title">Rapid-fire with Jonas</div>
+          <div className="tile-sub">AI party guest asks question after question, with follow-ups</div>
+        </a>
+      </div>
       <div className="card muted">
         <p>
-          Coming next: your personal small-talk script, spoken German (contractions, <i>halt, doch, mal</i>), multi-speaker
-          "evening with friends" listening, and partner mode. Get through Phase 1 first — <b>Meeting her friends</b> and{' '}
-          <b>Guest at her family</b> are the bridge.
+          Coming next: spoken German (contractions, <i>halt, doch, mal</i>), "evening with friends" group listening, and group
+          role-plays.
         </p>
       </div>
     </div>

@@ -60,7 +60,7 @@ export interface Card {
 /** A phrase that lives outside the built-in scenarios (captured, from role-play debriefs) */
 export interface CustomPhrase extends Phrase {
   key: string;
-  source: 'capture' | 'roleplay';
+  source: 'capture' | 'roleplay' | 'smalltalk';
   scenarioId?: string;
   created: number;
 }
@@ -82,6 +82,26 @@ export interface DayStats {
   roleplays: number;
 }
 
+/** One topic of the learner's personal small-talk script */
+export interface SmalltalkEntry {
+  short: Phrase;
+  medium: Phrase;
+  story: Phrase;
+  /** A question to bounce back to the other person */
+  bounce: Phrase;
+  words: Phrase[];
+  grammar: string;
+  generated: number;
+  /** Custom-phrase keys added to the deck from this entry */
+  deckKeys?: string[];
+}
+
+export interface SmalltalkState {
+  notes: Record<string, string>;
+  script: Record<string, SmalltalkEntry>;
+  drillBest: number;
+}
+
 export interface AppState {
   version: 1;
   settings: Settings;
@@ -90,4 +110,5 @@ export interface AppState {
   startedScenarios: string[];
   stats: Record<string, DayStats>; // key: YYYY-MM-DD
   numbersBest: Record<string, number>;
+  smalltalk: SmalltalkState;
 }
