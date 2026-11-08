@@ -120,6 +120,11 @@ export default function SettingsPage() {
         </label>
         {voices.length === 0 && <p className="error">No German voice found on this device.</p>}
         <p className="muted-text small-text">
+          <b>No sound on iPhone?</b> Speech is muted when the phone is on silent: flip the ring/silent switch (or Action button) to
+          ring and turn the volume up. If it still stays quiet, pick a voice above that isn’t “Enhanced/Premium” (those need to be
+          downloaded first), or leave it on Automatic.
+        </p>
+        <p className="muted-text small-text">
           Tip: on iPhone/Mac, download a better voice in Settings → Accessibility → Spoken Content → Voices → German (e.g.
           “Anna (Enhanced)” or a Premium voice).
         </p>

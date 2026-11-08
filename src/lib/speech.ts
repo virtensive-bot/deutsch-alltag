@@ -45,23 +45,70 @@ function pickVoice(preferredURI: string, alt = false): SpeechSynthesisVoice | un
 
 export const ttsAvailable = () => typeof speechSynthesis !== 'undefined';
 
+// iOS Safari only allows speech that starts inside a user gesture until the engine
+// has been "unlocked" once. Speak a silent utterance on the first touch/click.
+let unlocked = false;
+function unlock() {
+  if (unlocked || !ttsAvailable()) return;
+  unlocked = true;
+  const u = new SpeechSynthesisUtterance(' ');
+  u.volume = 0;
+  speechSynthesis.speak(u);
+}
+if (typeof document !== 'undefined') {
+  for (const ev of ['touchend', 'click', 'keydown'] as const) document.addEventListener(ev, unlock, { capture: true, once: true });
+}
+
+// Keep a reference so the utterance isn't garbage-collected mid-speech (Safari/Chrome bug).
+let current: SpeechSynthesisUtterance | null = null;
+
 export function speak(text: string, opts: { rate?: number; alt?: boolean; onEnd?: () => void } = {}) {
   if (!ttsAvailable()) return;
+  unlock();
   const { settings } = getState();
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'de-DE';
-  const v = pickVoice(settings.voiceURI, opts.alt);
-  if (v) u.voice = v;
-  u.rate = (opts.rate ?? 1) * settings.rate;
-  if (opts.onEnd) {
-    u.onend = opts.onEnd;
-    u.onerror = opts.onEnd;
-  }
+  if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
+  speechSynthesis.resume(); // iOS sometimes leaves the engine paused
+
+  const make = (withVoice: boolean) => {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'de-DE';
+    if (withVoice) {
+      const v = pickVoice(settings.voiceURI, opts.alt);
+      if (v) u.voice = v;
+    }
+    u.rate = (opts.rate ?? 1) * settings.rate;
+    const done = () => {
+      if (current === u) {
+        current = null;
+        opts.onEnd?.();
+      }
+    };
+    u.onend = done;
+    u.onerror = done;
+    return u;
+  };
+
+  const u = make(true);
+  let started = false;
+  u.onstart = () => (started = true);
+  current = u;
   speechSynthesis.speak(u);
+
+  // Fallback: some iPhone voices are listed but silent (not downloaded), and iOS
+  // occasionally drops an utterance. If nothing started, retry with the system default.
+  setTimeout(() => {
+    if (started || current !== u) return;
+    const retry = make(false);
+    current = retry;
+    speechSynthesis.cancel();
+    setTimeout(() => {
+      if (current === retry) speechSynthesis.speak(retry);
+    }, 60);
+  }, 1200);
 }
 
 export function stopSpeaking() {
+  current = null;
   if (ttsAvailable()) speechSynthesis.cancel();
 }
 
